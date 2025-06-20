@@ -269,7 +269,7 @@ int deleteList(){
 
 int reverseList() {
     if (start == NULL || start->link == NULL) {
-        printf("\empty or has only one node.");
+        printf("\nList is empty or has only one node.");
         return SUCCESS;
     }
 
@@ -286,6 +286,273 @@ int reverseList() {
     start = prev;
     printf("\nList reversed successfully.");
     return SUCCESS;
+}
+
+// Function to sort the linked list using bubble sort (ascending order)
+int sortList() {
+    if (start == NULL || start->link == NULL) {
+        printf("\nList is empty or has only one node, already sorted.");
+        return SUCCESS;
+    }
+    
+    int swapped;
+    Node *ptr1;
+    Node *lptr = NULL;
+    
+    do {
+        swapped = 0;
+        ptr1 = start;
+        
+        while (ptr1->link != lptr) {
+            if (ptr1->info > ptr1->link->info) {
+                // Swap data
+                int temp = ptr1->info;
+                ptr1->info = ptr1->link->info;
+                ptr1->link->info = temp;
+                swapped = 1;
+            }
+            ptr1 = ptr1->link;
+        }
+        lptr = ptr1;
+    } while (swapped);
+    
+    printf("\nList sorted successfully.");
+    return SUCCESS;
+}
+
+// Function to search for a value in the list
+// Returns position (1-based) if found, 0 if not found
+int searchElement(int key) {
+    if (start == NULL) {
+        printf("\nList is empty, cannot search.");
+        return 0;
+    }
+    
+    Node *current = start;
+    int position = 1;
+    
+    while (current != NULL) {
+        if (current->info == key) {
+            printf("\nElement %d found at position %d.", key, position);
+            return position;
+        }
+        current = current->link;
+        position++;
+    }
+    
+    printf("\nElement %d not found in the list.", key);
+    return 0;
+}
+
+// Function to create a new list (for merging and concatenation operations)
+Node* createNewList() {
+    Node* newStart = NULL;
+    int n, data;
+    
+    printf("\nEnter number of elements for the new list: ");
+    scanf("%d", &n);
+    
+    for (int i = 0; i < n; i++) {
+        printf("Enter element %d: ", i+1);
+        scanf("%d", &data);
+        
+        Node* new = createnode();
+        if (new == NULL) {
+            printf("\nMemory allocation failed!");
+            continue;
+        }
+        
+        new->info = data;
+        new->link = NULL;
+        
+        if (newStart == NULL) {
+            newStart = new;
+        } else {
+            Node* temp = newStart;
+            while (temp->link != NULL) {
+                temp = temp->link;
+            }
+            temp->link = new;
+        }
+    }
+    
+    return newStart;
+}
+
+// Function to merge two sorted lists
+int mergeLists() {
+    printf("\nCreating first sorted list...");
+    Node* list1 = start;
+    
+    printf("\nCreating second sorted list...");
+    Node* list2 = createNewList();
+    
+    // Sort both lists if they aren't already sorted
+    if (list1 != NULL) {
+        // Sort the first list
+        int swapped;
+        Node *ptr1;
+        Node *lptr = NULL;
+        
+        do {
+            swapped = 0;
+            ptr1 = list1;
+            
+            while (ptr1->link != lptr) {
+                if (ptr1->info > ptr1->link->info) {
+                    int temp = ptr1->info;
+                    ptr1->info = ptr1->link->info;
+                    ptr1->link->info = temp;
+                    swapped = 1;
+                }
+                ptr1 = ptr1->link;
+            }
+            lptr = ptr1;
+        } while (swapped);
+    }
+    
+    if (list2 != NULL) {
+        // Sort the second list
+        int swapped;
+        Node *ptr1;
+        Node *lptr = NULL;
+        
+        do {
+            swapped = 0;
+            ptr1 = list2;
+            
+            while (ptr1->link != lptr) {
+                if (ptr1->info > ptr1->link->info) {
+                    int temp = ptr1->info;
+                    ptr1->info = ptr1->link->info;
+                    ptr1->link->info = temp;
+                    swapped = 1;
+                }
+                ptr1 = ptr1->link;
+            }
+            lptr = ptr1;
+        } while (swapped);
+    }
+    
+    // Handle empty list cases
+    if (list1 == NULL) {
+        start = list2;
+        return SUCCESS;
+    }
+    if (list2 == NULL) {
+        return SUCCESS; // First list remains unchanged
+    }
+    
+    // Create a dummy node to simplify merging
+    Node dummy;
+    Node* tail = &dummy;
+    dummy.link = NULL;
+    
+    // Merge the two sorted lists
+    while (list1 != NULL && list2 != NULL) {
+        if (list1->info <= list2->info) {
+            tail->link = list1;
+            list1 = list1->link;
+        } else {
+            tail->link = list2;
+            list2 = list2->link;
+        }
+        tail = tail->link;
+    }
+    
+    // Attach remaining nodes
+    if (list1 != NULL) {
+        tail->link = list1;
+    } else {
+        tail->link = list2;
+    }
+    
+    // Update start pointer
+    start = dummy.link;
+    
+    printf("\nLists merged successfully.");
+    return SUCCESS;
+}
+
+// Function to concatenate two lists
+int concatenateLists() {
+    printf("\nCreating list to concatenate...");
+    Node* list2 = createNewList();
+    
+    if (start == NULL) {
+        start = list2;
+        printf("\nLists concatenated successfully.");
+        return SUCCESS;
+    }
+    
+    if (list2 == NULL) {
+        printf("\nSecond list is empty, nothing to concatenate.");
+        return SUCCESS;
+    }
+    
+    // Find the end of the first list
+    Node* temp = start;
+    while (temp->link != NULL) {
+        temp = temp->link;
+    }
+    
+    // Connect the end of first list to the start of second list
+    temp->link = list2;
+    
+    printf("\nLists concatenated successfully.");
+    return SUCCESS;
+}
+
+// Function to check if two lists are equal
+int areListsEqual() {
+    printf("\nCreating second list to compare...");
+    Node* list2 = createNewList();
+    
+    Node* p1 = start;
+    Node* p2 = list2;
+    
+    // Compare each node
+    while (p1 != NULL && p2 != NULL) {
+        if (p1->info != p2->info) {
+            printf("\nLists are not equal.");
+            
+            // Free the second list to avoid memory leaks
+            while (list2 != NULL) {
+                Node* temp = list2;
+                list2 = list2->link;
+                free(temp);
+            }
+            
+            return 0; // Not equal
+        }
+        p1 = p1->link;
+        p2 = p2->link;
+    }
+    
+    // If one list is longer than the other
+    if (p1 != NULL || p2 != NULL) {
+        printf("\nLists are not equal (different lengths).");
+        
+        // Free the second list to avoid memory leaks
+        while (list2 != NULL) {
+            Node* temp = list2;
+            list2 = list2->link;
+            free(temp);
+        }
+        
+        return 0; // Not equal
+    }
+    
+    printf("\nLists are equal.");
+    
+    // Free the second list to avoid memory leaks
+    while (list2 != NULL) {
+        Node* temp = list2;
+        list2 = list2->link;
+        free(temp);
+    }
+    
+    return 1; // Equal
 }
 
 void viewlist(){
@@ -411,7 +678,12 @@ void menu(){
     printf("\n13. Delete Node with Specified Value");
     printf("\n14. Reverse List");
     printf("\n15. Delete Entire List");
-    printf("\n16. Exit");
+    printf("\n16. Sort the List");
+    printf("\n17. Search for an Element");
+    printf("\n18. Merge Two Sorted Lists");
+    printf("\n19. Concatenate Two Lists");
+    printf("\n20. Check if Two Lists are Equal");
+    printf("\n21. Exit");
     printf("\n-----------------------------------------");
     printf("\nEnter your choice: ");
 }
@@ -520,6 +792,23 @@ int main(){
                     status = deleteList();
                     break;
                 case 16:
+                    status = sortList();
+                    break;
+                case 17:
+                    printf("Enter element to search: ");
+                    scanf("%d", &value);
+                    status = (searchElement(value) > 0) ? SUCCESS : INVALID_POSITION;
+                    break;
+                case 18:
+                    status = mergeLists();
+                    break;
+                case 19:
+                    status = concatenateLists();
+                    break;
+                case 20:
+                    status = areListsEqual() ? SUCCESS : INVALID_POSITION;
+                    break;
+                case 21:
                     printf("Exiting program.\n");
                     deleteList();
                     exit(0);
@@ -528,7 +817,7 @@ int main(){
                     status = SUCCESS;
             }
 
-            if(status == SUCCESS && choice >= 2 && choice <= 15){
+            if(status == SUCCESS && choice >= 2 && choice <= 20){
                  printf("\nOperation successful.");
                  viewlist();
             } else if (status == INVALID_POSITION) {
